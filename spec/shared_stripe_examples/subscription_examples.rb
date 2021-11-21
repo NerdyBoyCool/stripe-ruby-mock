@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'securerandom'
+require 'pry'
 
 shared_examples 'Customer Subscriptions with plans' do
   let(:gen_card_tk) { stripe_helper.generate_card_token }
@@ -290,14 +291,16 @@ shared_examples 'Customer Subscriptions with plans' do
       expect(customer.subscriptions.count).to eq(0)
     end
 
-    it "creates a subscription when default imcomplete subscribing a customer with no card" do
+    it "creates a subscription when subscription's payment_behavior is default_incomplete" do
       plan = stripe_helper.create_plan(id: 'enterprise', product: product.id, amount: 499)
       customer = Stripe::Customer.create(id: 'cardless')
 
       sub = Stripe::Subscription.create({ plan: plan.id, customer: customer.id, payment_behavior: 'default_incomplete' })
+      customer = Stripe::Customer.retrieve('cardless')
 
       expect(customer.subscriptions.count).to eq(1)
       expect(customer.subscriptions.data.first.id).to eq(sub.id)
+      expect(customer.subscriptions.data.first.status).to eq('incomplete')
     end
 
     it "throws an error when subscribing a customer with no card" do

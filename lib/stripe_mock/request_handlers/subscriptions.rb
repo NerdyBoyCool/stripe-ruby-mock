@@ -132,6 +132,10 @@ module StripeMock
           subscription[:status] = 'trialing'
         end
 
+        if params[:payment_behavior] == 'default_incomplete'
+          subscription[:status] = 'incomplete'
+        end
+
         if params[:cancel_at_period_end]
           subscription[:cancel_at_period_end] = true
           subscription[:canceled_at] = Time.now.utc.to_i
@@ -295,7 +299,7 @@ module StripeMock
         return if customer[:trial_end]
         return if params[:trial_end]
         return if subscription[:default_payment_method]
-        return if subscription[:payment_behavior] == 'default_incomplete'
+        return if params[:payment_behavior] == 'default_incomplete'
 
         plan_trial_period_days = plan[:trial_period_days] || 0
         plan_has_trial = plan_trial_period_days != 0 || plan[:amount] == 0 || plan[:trial_end]
