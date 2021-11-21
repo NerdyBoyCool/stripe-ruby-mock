@@ -295,6 +295,7 @@ module StripeMock
         return if customer[:trial_end]
         return if params[:trial_end]
         return if subscription[:default_payment_method]
+        return if subscription[:payment_behavior] == 'default_incomplete'
 
         plan_trial_period_days = plan[:trial_period_days] || 0
         plan_has_trial = plan_trial_period_days != 0 || plan[:amount] == 0 || plan[:trial_end]
