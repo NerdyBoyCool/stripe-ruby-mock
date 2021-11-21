@@ -290,6 +290,16 @@ shared_examples 'Customer Subscriptions with plans' do
       expect(customer.subscriptions.count).to eq(0)
     end
 
+    it "creates a subscription when default imcomplete subscribing a customer with no card" do
+      plan = stripe_helper.create_plan(id: 'enterprise', product: product.id, amount: 499)
+      customer = Stripe::Customer.create(id: 'cardless')
+
+      sub = Stripe::Subscription.create({ plan: plan.id, customer: customer.id, payment_behavior: 'default_incomplete' })
+
+      expect(customer.subscriptions.count).to eq(1)
+      expect(customer.subscriptions.data.first.id).to eq(sub.id)
+    end
+
     it "throws an error when subscribing a customer with no card" do
       plan = stripe_helper.create_plan(id: 'enterprise', product: product.id, amount: 499)
       customer = Stripe::Customer.create(id: 'cardless')
